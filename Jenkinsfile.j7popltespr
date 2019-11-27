@@ -69,11 +69,13 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts artifacts: "${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
+            sh "cp ${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip ${env.WORKSPACE}"
+            archiveArtifacts artifacts: "lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
         }
 
         cleanup {
             sh "rm -r ${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
+            sh "rm -r ${env.WORKSPACE}/*.zip"
         }
     }
 }
