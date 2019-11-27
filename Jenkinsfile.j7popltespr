@@ -27,7 +27,7 @@ pipeline {
         stage('Initialize the project') {
             when {
                 expression {
-                    ${BUILD_NUMBER} == 1
+                    "${env.BUILD_NUMBER}" == 1
                  }
             }
 
