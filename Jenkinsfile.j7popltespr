@@ -6,6 +6,18 @@ pipeline {
         }
     }
 
+    environment {
+        BASE_DIR = sh (
+            script: 'echo $BASE_DIR',
+            returnStdout: true
+        ).trim()
+
+        DEVICE_CODENAME = sh (
+            script: 'echo $DEVICE_CODENAME',
+            returnStdout: true
+        ).trim()
+    }
+
     parameters {
         booleanParam(name: 'CLEAN', defaultValue: false, description: 'Enable to run \'mka clean\'.')
         booleanParam(name: 'SYNC', defaultValue: true, description: 'Disable to not run \'repo sync\'.')
@@ -52,6 +64,16 @@ pipeline {
             steps {
                 sh 'lineageos build'
             }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: "${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
+        }
+
+        cleanup {
+            sh "rm -r ${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
         }
     }
 }
