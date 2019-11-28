@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'jfloff/lineageos'
-            args '--privileged -v /home/minz1/android/lineage-16.0:/home/lineageos -e GIT_USER_NAME=minz1 -e GIT_USER_EMAIL=emerytang@gmail.com -e DEVICE_CODENAME=j7popltespr -e LINEAGEOS_BRANCH=lineage-16.0 -e LINEAGEOS_LOCAL_MANIFEST_REPO=https://github.com/minz1/local_manifests-1 -e LINEAGEOS_LOCAL_MANIFEST_BRANCH=lineage-16.0'
+            image 'minz1/lineageos'
+            args '--privileged -v /home/minz1/android/lineage-16.0:/home/lineageos -e GIT_USER_NAME=minz1 -e GIT_USER_EMAIL=emerytang@gmail.com -e DEVICE_CODENAME=j7popltespr -e LINEAGEOS_BRANCH=lineage-16.0 -e LINEAGEOS_LOCAL_MANIFEST_REPO=https://github.com/minz1/local_manifests-1 -e LINEAGEOS_LOCAL_MANIFEST_BRANCH=lineage-16.0 -e BUILD_FLAVOR=userdebug'
         }
     }
 
