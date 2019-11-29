@@ -20,6 +20,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'CLEAN', defaultValue: false, description: 'Enable to run \'mka clean\'.')
+        booleanParam(name: 'INSTALLCLEAN', defaultValue: false, description: 'Enable to run \'mka installclean\'.')
         booleanParam(name: 'SYNC', defaultValue: true, description: 'Disable to not run \'repo sync\'.')
     }
 
@@ -56,7 +57,13 @@ pipeline {
             }
 
             steps {
-                sh 'lineageos -c'
+                script {
+                    if ("${params.INSTALLCLEAN}" == "true") {
+                        sh 'lineageos -ic'
+                    } else {
+                        sh 'lineageos -c'
+                    }
+                }
             }
         }
 
