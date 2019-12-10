@@ -1,0 +1,89 @@
+pipeline {
+    agent {
+        docker {
+            image 'minz1/lineageos'
+            args '--privileged -v /home/minz1/android/lineage-16.0:/home/lineageos -e GIT_USER_NAME=minz1 -e GIT_USER_EMAIL=emerytang@gmail.com -e DEVICE_CODENAME=s2 -e LINEAGEOS_BRANCH=lineage-16.0 -e LINEAGEOS_LOCAL_MANIFEST_REPO=https://github.com/minz1/local_manifests-1 -e LINEAGEOS_LOCAL_MANIFEST_BRANCH=ODIN/s2-16 -e BUILD_FLAVOR=userdebug'
+        }
+    }
+
+    environment {
+        BASE_DIR = sh (
+            script: 'echo $BASE_DIR',
+            returnStdout: true
+        ).trim()
+
+        DEVICE_CODENAME = sh (
+            script: 'echo $DEVICE_CODENAME',
+            returnStdout: true
+        ).trim()
+    }
+
+    parameters {
+        booleanParam(name: 'CLEAN', defaultValue: false, description: 'Enable to run \'mka clean\'.')
+        booleanParam(name: 'INSTALLCLEAN', defaultValue: false, description: 'Enable to run \'mka installclean\'.')
+        booleanParam(name: 'SYNC', defaultValue: true, description: 'Disable to not run \'repo sync\'.')
+    }
+
+    stages {
+        stage('Initialize the project') {
+            when {
+                expression {
+                    "${env.BUILD_NUMBER}" == 1
+                }
+            }
+
+            steps {
+                sh 'lineageos init'
+            }
+        }
+
+        stage('Sync Repositories') {
+            when {
+                expression {
+                    params.SYNC == true
+                }
+            }
+
+            steps {
+                sh 'lineageos sync'
+            }
+        }
+
+        stage('Clean the out directory') {
+            when {
+                expression {
+                    params.CLEAN == true ||
+					params.INSTALLCLEAN == true
+                }
+            }
+
+            steps {
+                script {
+                    if ("${params.INSTALLCLEAN}" == "true") {
+                        sh 'lineageos -ic'
+                    } else {
+                        sh 'lineageos -c'
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'lineageos build'
+            }
+        }
+    }
+
+    post {
+        success {
+            sh "cp ${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip ${env.WORKSPACE}"
+            archiveArtifacts artifacts: "lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
+        }
+
+        cleanup {
+            sh "rm -r ${env.BASE_DIR}/out/target/product/${env.DEVICE_CODENAME}/lineage-*.*-*-*-${env.DEVICE_CODENAME}.zip"
+            sh "rm -r ${env.WORKSPACE}/*.zip"
+        }
+    }
+}
