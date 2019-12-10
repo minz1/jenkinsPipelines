@@ -19,6 +19,7 @@ pipeline {
     }
 
     parameters {
+        booleanParam(name: 'FORCEINIT', defaultValue: false, description: 'Enable to force run \'lineageos init\'.')
         booleanParam(name: 'CLEAN', defaultValue: false, description: 'Enable to run \'mka clean\'.')
         booleanParam(name: 'INSTALLCLEAN', defaultValue: false, description: 'Enable to run \'mka installclean\'.')
         booleanParam(name: 'SYNC', defaultValue: true, description: 'Disable to not run \'repo sync\'.')
@@ -28,7 +29,8 @@ pipeline {
         stage('Initialize the project') {
             when {
                 expression {
-                    "${env.BUILD_NUMBER}" == 1
+                    "${env.BUILD_NUMBER}" == 1 ||
+                    params.FORCEINIT == true
                 }
             }
 
